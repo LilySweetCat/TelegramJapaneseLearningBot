@@ -1,27 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Telegram.Bot;
+using Telegram.Bot.Args;
 using TelegramJapaneseLearningBot.DBContext;
+using TelegramJapaneseLearningBot.Handlers;
 
 namespace TelegramJapaneseLearningBot
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
@@ -33,10 +27,21 @@ namespace TelegramJapaneseLearningBot
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
 
-        public void RegisterContainer()
+        private void RegisterContainer()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterType<Context>();
+
+            builder.RegisterType<Context>().InstancePerLifetimeScope().AsSelf();
+            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+                .Where(type => type.BaseType == typeof(IHandler<CallbackQueryEventArgs>))
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+                .Where(type => type.BaseType == typeof(IHandler<MessageEventArgs>))
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+            builder.RegisterType<TelegramBotClient>().InstancePerLifetimeScope().AsSelf();
+
             builder.Build();
         }
 
@@ -46,9 +51,7 @@ namespace TelegramJapaneseLearningBot
             RegisterContainer();
 
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
 
             app.UseHttpsRedirection();
 
@@ -56,10 +59,7 @@ namespace TelegramJapaneseLearningBot
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }

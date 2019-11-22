@@ -5,12 +5,12 @@ namespace TelegramJapaneseLearningBot.DBContext
 {
     public sealed class Context : DbContext
     {
-        public DbSet<User> Users { get; set; }
-
-        public Context(DbContextOptions<Context> options): base(options)
+        public Context(DbContextOptions<Context> options) : base(options)
         {
             Database.EnsureCreated();
         }
+
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

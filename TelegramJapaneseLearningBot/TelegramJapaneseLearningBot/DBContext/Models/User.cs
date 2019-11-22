@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TelegramJapaneseLearningBot.Models
 {
@@ -11,8 +7,7 @@ namespace TelegramJapaneseLearningBot.Models
     /// </summary>
     public class User
     {
-        [Key]
-        public string UserId { get; set; }
+        [Key] public int UserId { get; set; }
 
         public UserSettings UserSettings { get; set; }
     }
