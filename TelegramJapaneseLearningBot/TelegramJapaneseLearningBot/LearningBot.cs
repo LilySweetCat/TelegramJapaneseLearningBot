@@ -14,9 +14,8 @@ namespace TelegramJapaneseLearningBot
     /// </summary>
     public class LearningBot
     {
-        private readonly CallbackHandler _callbackHandler;
-        private readonly MessageHandler _messageHandler;
-        private readonly IConfiguration _config;
+        private readonly CallbackProcessor _callbackProcessor;
+        private readonly MessageProcessor _messageProcessor;
         private readonly Context _context;
 
         private TelegramBotClient _telegramBotClient;
@@ -25,17 +24,15 @@ namespace TelegramJapaneseLearningBot
         /// Создает нового бота
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="config"></param>
-        /// <param name="callbackHandler"></param>
-        /// <param name="messageHandler"></param>
+        /// <param name="callbackProcessor"></param>
+        /// <param name="messageProcessor"></param>
         /// <param name="telegramBotClient"></param>
-        public LearningBot(Context context, IConfiguration config, CallbackHandler callbackHandler, MessageHandler messageHandler,
+        public LearningBot(Context context, CallbackProcessor callbackProcessor, MessageProcessor messageProcessor,
             TelegramBotClient telegramBotClient)
         {
             _context = context;
-            _config = config;
-            _callbackHandler = callbackHandler;
-            _messageHandler = messageHandler;
+            _callbackProcessor = callbackProcessor;
+            _messageProcessor = messageProcessor;
             _telegramBotClient = telegramBotClient;
         }
 
@@ -44,7 +41,6 @@ namespace TelegramJapaneseLearningBot
         /// </summary>
         public void Start()
         {
-            _telegramBotClient = new TelegramBotClient(_config.GetSection("Telegram").Value);
             _telegramBotClient.OnMessage += OnMessageReceived;
             _telegramBotClient.OnCallbackQuery += OnCallbackQuery;
             _telegramBotClient.StartReceiving();
@@ -53,19 +49,14 @@ namespace TelegramJapaneseLearningBot
 
         private void OnCallbackQuery(object sender, CallbackQueryEventArgs e)
         {
-            _callbackHandler.Handle(e);
+            _callbackProcessor.Handle(e);
         }
 
-        private Task<bool> CheckUser(int userId)
-        {
-            return _context.Users.AnyAsync(user => user.UserId == userId);
-        }
-
-        private async void OnMessageReceived(object sender, MessageEventArgs e)
+        private void OnMessageReceived(object sender, MessageEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Message.Text))
             {
-                _messageHandler.Handle(e);
+                _messageProcessor.Handle(e);
             }
         }
     }

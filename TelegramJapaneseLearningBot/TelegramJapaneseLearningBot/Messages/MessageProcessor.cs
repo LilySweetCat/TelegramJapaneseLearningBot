@@ -5,11 +5,11 @@ using Telegram.Bot.Args;
 
 namespace TelegramJapaneseLearningBot.Messages
 {
-    public class MessageHandler
+    public class MessageProcessor
     {
         private readonly IEnumerable<IHandler<MessageEventArgs>> _handlers;
 
-        public MessageHandler(IEnumerable<IHandler<MessageEventArgs>> handlers)
+        public MessageProcessor(IEnumerable<IHandler<MessageEventArgs>> handlers)
         {
             _handlers = handlers;
         }

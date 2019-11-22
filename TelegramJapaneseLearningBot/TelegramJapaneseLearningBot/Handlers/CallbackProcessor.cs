@@ -4,11 +4,11 @@ using Telegram.Bot.Args;
 
 namespace TelegramJapaneseLearningBot.Handlers
 {
-    public class CallbackHandler
+    public class CallbackProcessor
     {
         private readonly IEnumerable<IHandler<CallbackQueryEventArgs>> _handlers;
 
-        public CallbackHandler(IEnumerable<IHandler<CallbackQueryEventArgs>> handlers) => _handlers = handlers;
+        public CallbackProcessor(IEnumerable<IHandler<CallbackQueryEventArgs>> handlers) => _handlers = handlers;
 
         public void Handle(CallbackQueryEventArgs e)
         {

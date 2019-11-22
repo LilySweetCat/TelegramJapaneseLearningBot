@@ -16,8 +16,10 @@ namespace TelegramJapaneseLearningBot
     public class Startup
     {
         public Startup(IConfiguration configuration) => Configuration = configuration;
+        
+        public ILifetimeScope AutofacContainer { get; private set; }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -26,29 +28,28 @@ namespace TelegramJapaneseLearningBot
             services.AddDbContext<Context>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
-
-        private void RegisterContainer()
+        
+        public void ConfigureContainer(ContainerBuilder builder)
         {
-            var builder = new ContainerBuilder();
-
-            builder.RegisterType<Context>().InstancePerLifetimeScope().AsSelf();
-            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-                .Where(type => type.BaseType == typeof(IHandler<CallbackQueryEventArgs>))
-                .AsImplementedInterfaces()
-                .InstancePerLifetimeScope();
-            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-                .Where(type => type.BaseType == typeof(IHandler<MessageEventArgs>))
-                .AsImplementedInterfaces()
-                .InstancePerLifetimeScope();
-            builder.RegisterType<TelegramBotClient>().InstancePerLifetimeScope().AsSelf();
-
-            builder.Build();
+            // Add any Autofac modules or registrations.
+            // This is called AFTER ConfigureServices so things you
+            // register here OVERRIDE things registered in ConfigureServices.
+            //
+            // You must have the call to AddAutofac in the Program.Main
+            // method or this won't be called.
+            builder.RegisterModule(new TelegramJapaneseLearningBotModule());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            RegisterContainer();
+            // In ASP.NET Core 3.0 `env` will be an IWebHostingEnvironment, not IHostingEnvironment.
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+            this.Configuration = builder.Build();
 
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
