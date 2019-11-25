@@ -15,9 +15,10 @@ namespace TelegramJapaneseLearningBot.Controllers
             _bot = bot;
         }
 
-        public void StartBot()
+        public string StartBot()
         {
             _bot.Start();
+            return "Bot started";
         }
     }
 }

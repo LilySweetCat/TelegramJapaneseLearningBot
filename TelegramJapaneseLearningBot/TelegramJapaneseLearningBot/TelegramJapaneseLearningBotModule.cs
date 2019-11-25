@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using Autofac;
+using Autofac.Core;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -28,11 +30,24 @@ namespace TelegramJapaneseLearningBot
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
             
-            builder.RegisterType<TelegramBotClient>().InstancePerLifetimeScope().AsSelf()
-                .WithParameter((pi, c) => pi.Name == "token", (pi, c) =>
+            builder.RegisterType<TelegramBotClient>().SingleInstance().AsSelf().UsingConstructor(typeof(string), typeof(IWebProxy))
+                .WithParameters(new []
                 {
-                    var configuration = c.Resolve<IConfiguration>().GetValue<string>("Telegram:Token");
-                    return configuration;
+                    new ResolvedParameter(
+                        (pi, ctx) => pi.Name == "token",
+                        (pi, ctx) => ctx.Resolve<IConfiguration>().GetValue<string>("Telegram:Token")),
+                    new ResolvedParameter(
+                        (pi, ctx) => pi.Name == "webProxy",
+                        (pi, ctx) =>
+                        {
+                            var configuration = ctx.Resolve<IConfiguration>();
+                            var proxy = new WebProxy(configuration.GetValue<string>("Proxy:Host"),
+                                configuration.GetValue<int>("Proxy:Port"))
+                            {
+                                Credentials = new NetworkCredential("Anonymous", "Password")
+                            };
+                            return proxy;
+                        })
                 });
 
             builder.RegisterType<LearningBot>().InstancePerLifetimeScope().AsSelf();

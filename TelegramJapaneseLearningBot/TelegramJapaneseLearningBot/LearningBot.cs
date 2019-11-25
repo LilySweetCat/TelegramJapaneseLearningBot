@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
@@ -39,13 +40,13 @@ namespace TelegramJapaneseLearningBot
         /// <summary>
         /// Запустить
         /// </summary>
-        public void Start()
+        public async void Start()
         {
             _telegramBotClient.OnMessage += OnMessageReceived;
             _telegramBotClient.OnCallbackQuery += OnCallbackQuery;
             _telegramBotClient.StartReceiving();
+            await _telegramBotClient.GetUpdatesAsync();
         }
-
 
         private void OnCallbackQuery(object sender, CallbackQueryEventArgs e)
         {
