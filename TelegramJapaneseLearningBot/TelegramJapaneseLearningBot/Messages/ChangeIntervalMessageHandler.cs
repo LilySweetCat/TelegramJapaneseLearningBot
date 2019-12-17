@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using TelegramJapaneseLearningBot.DBContext;
-using TelegramJapaneseLearningBot.Models;
 
 namespace TelegramJapaneseLearningBot.Messages
 {
@@ -21,14 +21,19 @@ namespace TelegramJapaneseLearningBot.Messages
 
         public string Name { get; }
         
-        public void OnHandler(MessageEventArgs e)
+        public async void OnHandler(MessageEventArgs e)
         {
-            var user = _context.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
+           var user = await _context.Users.FirstOrDefaultAsync(userContext =>
+                userContext.Username == e.Message.From.Username);
+
+            var setting = await _context.Settings.FirstOrDefaultAsync(s => s.LearningUserId == user.LearningUserId);
             var interval = e.Message.Text.Remove(0, Name.Length).Split(':').Select(int.Parse).ToArray();
             if (user != null)
-                user.UserSettings.Interval = new TimeSpan(interval[0], interval[1], 0);
+                setting.Interval = new TimeSpan(interval[0], interval[1], 0);
+
+            await _context.SaveChangesAsync();
             
-            _client.SendTextMessageAsync(e.Message.Chat, $"Вы успешно установили время обучения каждые {interval[0]} часов и {interval[1]} минут");
+            await _client.SendTextMessageAsync(e.Message.Chat.Id, $"Вы успешно установили время обучения каждые {interval[0]} часов и {interval[1]} минут");
         }
     }
 }

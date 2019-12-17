@@ -10,7 +10,7 @@ using TelegramJapaneseLearningBot.DBContext;
 namespace TelegramJapaneseLearningBot.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20191119124247_InitialCreate")]
+    [Migration("20191217095352_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,20 +21,25 @@ namespace TelegramJapaneseLearningBot.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("TelegramJapaneseLearningBot.Models.User", b =>
+            modelBuilder.Entity("TelegramJapaneseLearningBot.DBContext.Models.LearningUser", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("LearningUserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.HasKey("UserId");
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("LearningUserId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TelegramJapaneseLearningBot.Models.UserSettings", b =>
+            modelBuilder.Entity("TelegramJapaneseLearningBot.DBContext.Models.LearningUserSettings", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("LearningUserId")
+                        .HasColumnType("int");
 
                     b.Property<TimeSpan>("Interval")
                         .HasColumnType("time");
@@ -45,16 +50,16 @@ namespace TelegramJapaneseLearningBot.Migrations
                     b.Property<bool>("IsTextTraining")
                         .HasColumnType("bit");
 
-                    b.HasKey("UserId");
+                    b.HasKey("LearningUserId");
 
-                    b.ToTable("UserSettings");
+                    b.ToTable("Settings");
                 });
 
-            modelBuilder.Entity("TelegramJapaneseLearningBot.Models.UserSettings", b =>
+            modelBuilder.Entity("TelegramJapaneseLearningBot.DBContext.Models.LearningUserSettings", b =>
                 {
-                    b.HasOne("TelegramJapaneseLearningBot.Models.User", "User")
-                        .WithOne("UserSettings")
-                        .HasForeignKey("TelegramJapaneseLearningBot.Models.UserSettings", "UserId")
+                    b.HasOne("TelegramJapaneseLearningBot.DBContext.Models.LearningUser", "LearningUser")
+                        .WithOne("LearningUserSettings")
+                        .HasForeignKey("TelegramJapaneseLearningBot.DBContext.Models.LearningUserSettings", "LearningUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

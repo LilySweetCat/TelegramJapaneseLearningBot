@@ -12,7 +12,7 @@ namespace TelegramJapaneseLearningBot.Handlers
 
         public void Handle(CallbackQueryEventArgs e)
         {
-            var handler = _handlers.FirstOrDefault(h => h.Name == e.CallbackQuery.Id);
+            var handler = _handlers.FirstOrDefault(h => h.Name == e.CallbackQuery.Data);
             handler?.OnHandler(e);
         }
     }

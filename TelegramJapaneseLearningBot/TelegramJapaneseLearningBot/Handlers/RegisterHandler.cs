@@ -1,8 +1,9 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using TelegramJapaneseLearningBot.DBContext;
-using TelegramJapaneseLearningBot.Models;
+using TelegramJapaneseLearningBot.DBContext.Models;
 
 namespace TelegramJapaneseLearningBot.Handlers
 {
@@ -20,14 +21,28 @@ namespace TelegramJapaneseLearningBot.Handlers
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
-            await _context.Users.AddAsync(new User
+            try
             {
-                UserId = e.CallbackQuery.Message.From.Id
-            });
-            await _context.SaveChangesAsync();
+                await _context.Users.AddAsync(new LearningUser
+                {
+                    Username = e.CallbackQuery.From.Username,
+                    LearningUserSettings = new LearningUserSettings()
+                    {
+                        Interval = TimeSpan.FromHours(12),
+                        IsSpeechTraining = false,
+                        IsTextTraining = true
+                    }
+                });
 
-            await _botClient.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы зарегистрированы {e.CallbackQuery.Data}",
-                true);
+                await _context.SaveChangesAsync();
+
+                await _botClient.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы зарегистрированы {e.CallbackQuery.From.Username}",
+                    true);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
 
         public string Name { get; set; }

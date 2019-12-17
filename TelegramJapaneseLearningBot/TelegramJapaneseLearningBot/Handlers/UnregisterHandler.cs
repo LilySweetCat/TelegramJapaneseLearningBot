@@ -20,7 +20,7 @@ namespace TelegramJapaneseLearningBot.Handlers
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
-            var userContext = await _context.Users.FirstOrDefaultAsync(user => user.UserId == e.CallbackQuery.From.Id);
+            var userContext = await _context.Users.FirstOrDefaultAsync(user => user.Username == e.CallbackQuery.From.Username);
             _context.Users.Remove(userContext);
             await _context.SaveChangesAsync();
 

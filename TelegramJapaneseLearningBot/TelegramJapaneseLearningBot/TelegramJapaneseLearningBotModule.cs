@@ -20,14 +20,8 @@ namespace TelegramJapaneseLearningBot
             
             builder.RegisterType<Context>().InstancePerLifetimeScope().AsSelf();
             
-            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-                .Where(type => type.BaseType == typeof(IHandler<CallbackQueryEventArgs>))
-                .AsImplementedInterfaces()
-                .InstancePerLifetimeScope();
-            
-            builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
-                .Where(type => type.BaseType == typeof(IHandler<MessageEventArgs>))
-                .AsImplementedInterfaces()
+            builder.RegisterAssemblyTypes(typeof(IHandler<>).Assembly)
+                .AsClosedTypesOf(typeof(IHandler<>))
                 .InstancePerLifetimeScope();
             
             builder.RegisterType<TelegramBotClient>().SingleInstance().AsSelf().UsingConstructor(typeof(string), typeof(IWebProxy))
@@ -50,7 +44,7 @@ namespace TelegramJapaneseLearningBot
                         })
                 });
 
-            builder.RegisterType<LearningBot>().InstancePerLifetimeScope().AsSelf();
+            builder.RegisterType<LearningBot>().SingleInstance().AsSelf();
 
             builder.RegisterType<CallbackProcessor>().InstancePerLifetimeScope().AsSelf();
             

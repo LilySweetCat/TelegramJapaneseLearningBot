@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -13,10 +14,15 @@ namespace TelegramJapaneseLearningBot
 
         public async void CreateMenu(TelegramBotClient botClient, Chat chat, string message)
         {
-            KeyboardMarkup = new InlineKeyboardMarkup(Buttons);
-            await botClient.SendTextMessageAsync(chat,
-                message,
-                ParseMode.Default, false, false, 0, KeyboardMarkup);
+            try
+            {
+                KeyboardMarkup = new InlineKeyboardMarkup(Buttons);
+                await botClient.SendTextMessageAsync(chat.Id, message, ParseMode.Default, false, false, 0, KeyboardMarkup);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }

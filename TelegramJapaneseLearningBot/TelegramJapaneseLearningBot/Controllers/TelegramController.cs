@@ -8,11 +8,13 @@ namespace TelegramJapaneseLearningBot.Controllers
     [Route("[controller]")]
     public class TelegramController : ControllerBase
     {
-        private readonly LearningBot _bot;
+        private static LearningBot _bot;
+        private readonly ILifetimeScope _scope;
 
-        public TelegramController(LearningBot bot)
+        public TelegramController(LearningBot bot, ILifetimeScope scope)
         {
             _bot = bot;
+            _scope = scope;
         }
 
         public string StartBot()

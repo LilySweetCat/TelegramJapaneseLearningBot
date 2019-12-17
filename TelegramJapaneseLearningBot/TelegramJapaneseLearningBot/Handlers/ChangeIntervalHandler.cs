@@ -19,7 +19,14 @@ namespace TelegramJapaneseLearningBot.Handlers
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
-            await _botClient.SendTextMessageAsync(e.CallbackQuery.ChatInstance, "Введите интервал занятий в часах: \\interval XX:XX");
+            try
+            {
+                await _botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Введите интервал занятий в часах: \\interval XX:XX");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
     }
 }

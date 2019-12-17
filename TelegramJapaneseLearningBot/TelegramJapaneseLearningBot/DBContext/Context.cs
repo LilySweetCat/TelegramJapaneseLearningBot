@@ -1,25 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TelegramJapaneseLearningBot.Models;
+using TelegramJapaneseLearningBot.DBContext.Models;
 
 namespace TelegramJapaneseLearningBot.DBContext
 {
     public sealed class Context : DbContext
     {
-        public Context(DbContextOptions<Context> options) : base(options)
+        public Context(DbContextOptions options) : base(options)
         {
             Database.EnsureCreated();
         }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<LearningUser> Users { get; set; }
+        public DbSet<LearningUserSettings> Settings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<User>()
-                .Property(b => b.UserId)
-                .IsRequired();
-            modelBuilder.Entity<User>()
-                .HasKey(c => c.UserId);
+            modelBuilder.Entity<LearningUser>()
+                .HasOne(u => u.LearningUserSettings);
         }
     }
 }

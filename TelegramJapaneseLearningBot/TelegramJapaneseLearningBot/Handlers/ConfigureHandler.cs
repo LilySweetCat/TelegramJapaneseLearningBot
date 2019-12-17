@@ -21,7 +21,6 @@ namespace TelegramJapaneseLearningBot.Handlers
         }
 
         public string Name { get; }
-        public Action<CallbackQueryEventArgs> Handler { get; set; }
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
@@ -36,9 +35,11 @@ namespace TelegramJapaneseLearningBot.Handlers
                 }
             };
             var user = await _context.Users.FirstOrDefaultAsync(userContext =>
-                userContext.UserId == e.CallbackQuery.From.Id);
+                userContext.Username == e.CallbackQuery.From.Username);
 
-            if (user.UserSettings.IsSpeechTraining)
+            var setting = await _context.Settings.FirstOrDefaultAsync(s => s.LearningUserId == user.LearningUserId);
+
+            if (setting.IsSpeechTraining)
                 menu.Buttons.Add(new InlineKeyboardButton
                 {
                     Text = "Включить устные занятия",
@@ -50,7 +51,7 @@ namespace TelegramJapaneseLearningBot.Handlers
                     Text = "Выключить устные занятия",
                     CallbackData = nameof(SwitchSpeechTrainingHandler)
                 });
-            if (user.UserSettings.IsTextTraining)
+            if (setting.IsTextTraining)
                 menu.Buttons.Add(new InlineKeyboardButton
                 {
                     Text = "Включить письменные занятия",
@@ -63,8 +64,7 @@ namespace TelegramJapaneseLearningBot.Handlers
                     CallbackData = nameof(SwitchTextTrainingHandler)
                 });
 
-            var chat = await _client.GetChatAsync(e.CallbackQuery.ChatInstance);
-            menu.CreateMenu(_client, chat, "Выберите настройку");
+            menu.CreateMenu(_client, e.CallbackQuery.Message.Chat, "Выберите настройку");
         }
     }
 }

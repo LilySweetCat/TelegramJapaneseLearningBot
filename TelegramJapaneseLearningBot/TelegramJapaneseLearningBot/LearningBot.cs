@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types.Enums;
 using TelegramJapaneseLearningBot.DBContext;
 using TelegramJapaneseLearningBot.Handlers;
 using TelegramJapaneseLearningBot.Messages;
@@ -40,12 +41,11 @@ namespace TelegramJapaneseLearningBot
         /// <summary>
         /// Запустить
         /// </summary>
-        public async void Start()
+        public void Start()
         {
             _telegramBotClient.OnMessage += OnMessageReceived;
             _telegramBotClient.OnCallbackQuery += OnCallbackQuery;
-            _telegramBotClient.StartReceiving();
-            await _telegramBotClient.GetUpdatesAsync();
+            _telegramBotClient.StartReceiving(new []{UpdateType.Message, UpdateType.CallbackQuery});
         }
 
         private void OnCallbackQuery(object sender, CallbackQueryEventArgs e)
