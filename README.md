@@ -19,7 +19,7 @@ All settings stored in appsettings.json.
 - DictionaryResouces:  
   Wikidictionary - link for random page in Wikidictionary site  
   
-# NuGet uses
+## NuGet uses
 - EF Core
 - AngleSharp
 - Autofac
