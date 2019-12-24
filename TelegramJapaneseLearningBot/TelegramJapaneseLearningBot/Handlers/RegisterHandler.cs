@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -9,21 +10,23 @@ namespace TelegramJapaneseLearningBot.Handlers
 {
     public class RegisterHandler : IHandler<CallbackQueryEventArgs>
     {
+        private readonly ILifetimeScope _scope;
         private readonly TelegramBotClient _botClient;
-        private readonly Context _context;
 
-        public RegisterHandler(Context context, TelegramBotClient botClient)
+        public RegisterHandler(ILifetimeScope scope, TelegramBotClient botClient)
         {
-            _context = context;
+            _scope = scope;
             _botClient = botClient;
-            Name = nameof(RegisterHandler);
         }
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
             try
             {
-                await _context.Users.AddAsync(new LearningUser
+                using var scope = _scope.BeginLifetimeScope();
+                var context = scope.Resolve<Context>();
+
+                await context.Users.AddAsync(new LearningUser
                 {
                     Username = e.CallbackQuery.From.Username,
                     LearningUserSettings = new LearningUserSettings()
@@ -34,7 +37,7 @@ namespace TelegramJapaneseLearningBot.Handlers
                     }
                 });
 
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 await _botClient.AnswerCallbackQueryAsync(e.CallbackQuery.Id, $"Вы зарегистрированы {e.CallbackQuery.From.Username}",
                     true);
@@ -44,8 +47,5 @@ namespace TelegramJapaneseLearningBot.Handlers
                 Console.WriteLine(exception.Message);
             }
         }
-
-        public string Name { get; set; }
-        public Action<CallbackQueryEventArgs> Handler { get; set; }
     }
 }

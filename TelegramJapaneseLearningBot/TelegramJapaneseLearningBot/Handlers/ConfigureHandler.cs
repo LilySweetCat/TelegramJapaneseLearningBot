@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
+using Autofac.Core.Lifetime;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -11,19 +13,24 @@ namespace TelegramJapaneseLearningBot.Handlers
     public class ConfigureHandler : IHandler<CallbackQueryEventArgs>
     {
         private readonly TelegramBotClient _client;
-        private readonly Context _context;
+        private readonly ILifetimeScope _scope;
 
-        public ConfigureHandler(TelegramBotClient client, Context context)
+        public ConfigureHandler(TelegramBotClient client, ILifetimeScope scope)
         {
             _client = client;
-            _context = context;
-            Name = nameof(ConfigureHandler);
+            _scope = scope;
         }
-
-        public string Name { get; }
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
+            using var s = _scope.BeginLifetimeScope();
+            var context = s.Resolve<Context>();
+
+            var user = await context.Users.FirstOrDefaultAsync(userContext =>
+                userContext.Username == e.CallbackQuery.From.Username);
+
+            var setting = await context.Settings.FirstOrDefaultAsync(s => s.LearningUserId == user.LearningUserId);
+
             var menu = new Menu
             {
                 Buttons = new List<InlineKeyboardButton>
@@ -34,10 +41,6 @@ namespace TelegramJapaneseLearningBot.Handlers
                     }
                 }
             };
-            var user = await _context.Users.FirstOrDefaultAsync(userContext =>
-                userContext.Username == e.CallbackQuery.From.Username);
-
-            var setting = await _context.Settings.FirstOrDefaultAsync(s => s.LearningUserId == user.LearningUserId);
 
             if (setting.IsSpeechTraining)
                 menu.Buttons.Add(new InlineKeyboardButton

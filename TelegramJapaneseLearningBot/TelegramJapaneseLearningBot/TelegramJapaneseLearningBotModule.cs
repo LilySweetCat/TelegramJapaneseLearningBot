@@ -49,6 +49,8 @@ namespace TelegramJapaneseLearningBot
             builder.RegisterType<CallbackProcessor>().InstancePerLifetimeScope().AsSelf();
             
             builder.RegisterType<MessageProcessor>().InstancePerLifetimeScope().AsSelf();
+
+            builder.RegisterType<Wiktionary>().InstancePerLifetimeScope().AsSelf();
         }
     }
 }

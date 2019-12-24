@@ -16,7 +16,7 @@ namespace TelegramJapaneseLearningBot.Messages
 
         public void Handle(MessageEventArgs args)
         {
-            var handler = _handlers.FirstOrDefault(h => args.Message.Text.Contains(h.Name)) ?? _handlers.FirstOrDefault(h => h.Name == nameof(UndefinedMessageHandler));
+            var handler = _handlers.FirstOrDefault(h => h.GetType().Name == args.Message.Text) ?? _handlers.FirstOrDefault(h => h.GetType() == typeof(UndefinedMessageHandler));
             handler?.OnHandler(args);
         }
     }

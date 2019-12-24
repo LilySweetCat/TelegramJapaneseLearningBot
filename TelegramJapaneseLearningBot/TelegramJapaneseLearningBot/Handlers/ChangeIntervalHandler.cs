@@ -11,11 +11,7 @@ namespace TelegramJapaneseLearningBot.Handlers
         public ChangeIntervalHandler(TelegramBotClient botClient)
         {
             _botClient = botClient;
-            Name = nameof(ChangeIntervalHandler);
         }
-
-        public string Name { get; }
-        public Action<CallbackQueryEventArgs> Handler { get; set; }
 
         public async void OnHandler(CallbackQueryEventArgs e)
         {
